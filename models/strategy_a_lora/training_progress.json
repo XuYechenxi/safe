@@ -1,0 +1,21 @@
+{
+  "status": "training",
+  "current_epoch": 1,
+  "total_epochs": 10,
+  "current_step": 0,
+  "total_steps": 138880,
+  "losses": {
+    "total": [],
+    "dm": [],
+    "clip": [],
+    "local": []
+  },
+  "epoch_losses": {
+    "total": [],
+    "dm": [],
+    "clip": [],
+    "local": []
+  },
+  "start_time": 1763971575.0747325,
+  "last_update": 1763971575.0757365
+}

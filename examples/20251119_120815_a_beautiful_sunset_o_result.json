@@ -1,0 +1,13 @@
+{
+  "is_consistent": true,
+  "consistency_score": 0.7393333911895752,
+  "image_text_similarity": 0.7393333911895752,
+  "clip_score": 0.6135880351066589,
+  "fused_score": 0.7393333911895752,
+  "threshold": 0.3,
+  "prompt": "a beautiful sunset over the ocean",
+  "use_itsc_gan": true,
+  "mode": "clip_itsc_gan",
+  "seed": 2817050971,
+  "candidate_index": 1
+}

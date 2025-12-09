@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>图像生成与语义一致性检测系统 — 登录</title>
+  <!-- 推荐字体：可替换或删除 -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="page">
+    <!-- 左侧说明区 -->
+    <section class="left-panel">
+      <div class="left-card">
+        <div class="left-content">
+          <div class="logo-row">
+            <div class="icon">🎨</div>
+            <!-- 可替换为 svg 图标 -->
+          </div>
+          <h1 class="title">图像生成与语义一致性检测系统</h1>
+          <p class="subtitle">
+            基于 Stable Diffusion 的图像生成<br/>
+            与双模型语义一致性检测
+          </p>
+          <ul class="feature-list">
+            <li><span class="bullet">●</span> <strong>CLIP 模型</strong>：基础语义相似度检测</li>
+            <li><span class="bullet">●</span> <strong>ITSC-GAN</strong>：增强语义一致性检测</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右侧登录表单 -->
+    <section class="right-panel">
+      <div class="right-card">
+        <h2 class="form-title">用户登录</h2>
+        <form class="login-form" action="#" method="post" onsubmit="return false;">
+          <label class="field">
+            <span class="field-label">用户名或邮箱</span>
+            <input type="text" class="input" placeholder="请输入用户名或邮箱" autocomplete="username" />
+          </label>
+          <label class="field">
+            <span class="field-label">密码</span>
+            <input type="password" class="input" placeholder="请输入密码" autocomplete="current-password" />
+          </label>
+          <div class="captcha-row">
+            <label class="field captcha-input">
+              <span class="field-label">验证码</span>
+              <input type="text" class="input" placeholder="请输入验证码（不区分大小写）" />
+            </label>
+            <div class="captcha-image" role="img" aria-label="验证码">
+              <!-- 这里是验证码图片占位，实际项目中请替换为后端生成的图片 -->
+              <img src="data:image/svg+xml;utf8,
+                <svg xmlns='http://www.w3.org/2000/svg' width='120' height='44'>
+                  <rect rx='6' width='100%' height='100%' fill='%23f3f3f3'/>
+                  <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Inter, Arial' font-size='20' fill='%23303445'>oN5e</text>
+                </svg>" alt="验证码" />
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn primary" type="submit">登录</button>
+            <button class="btn ghost" type="button">注册</button>
+          </div>
+        </form>
+        <p class="note">
+          <!-- 可放置忘记密码 / 协议链接 -->
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 可选：微交互脚本（刷新验证码示例） -->
+  <script>
+    // 示例：点击验证码图像可刷新（这里只替换文本）
+    document.querySelectorAll('.captcha-image img').forEach(img => {
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', () => {
+        const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+        let s = '';
+        for (let i=0;i<4;i++) s += chars.charAt(Math.floor(Math.random()*chars.length));
+        const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='120' height='44'><rect rx='6' width='100%' height='100%' fill='%23f3f3f3'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Inter, Arial' font-size='20' fill='%23303445'>${s}</text></svg>`;
+        img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
