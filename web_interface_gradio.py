@@ -3472,204 +3472,48 @@ def create_interface():
     demo.queue()
     return demo
 
-# ==================== 端口管理工具 ====================
-def kill_port(port):
-    """
-    杀死占用指定端口的进程（Windows）
-    
-    Args:
-        port: 端口号
-        
-    Returns:
-        是否成功杀死进程
-    """
-    import subprocess
-    import platform
-    
-    if platform.system() != 'Windows':
-        print(f"[WARNING] 端口杀死功能目前仅支持Windows系统")
-        return False
-    
-    try:
-        # 查找占用端口的进程
-        result = subprocess.run(
-            ['netstat', '-ano'],
-            capture_output=True,
-            text=True,
-            encoding='gbk'  # Windows中文系统使用GBK编码
-        )
-        
-        # 查找占用指定端口的进程ID
-        pid = None
-        for line in result.stdout.split('\n'):
-            if f':{port}' in line and 'LISTENING' in line:
-                parts = line.split()
-                if len(parts) >= 5:
-                    pid = parts[-1]
-                    break
-        
-        if pid:
-            print(f"[INFO] 发现端口 {port} 被进程 {pid} 占用，正在终止...")
-            # 杀死进程
-            kill_result = subprocess.run(
-                ['taskkill', '/F', '/PID', pid],
-                capture_output=True,
-                text=True,
-                encoding='gbk'
-            )
-            
-            if kill_result.returncode == 0:
-                print(f"[INFO] ✅ 成功终止进程 {pid}")
-                return True
-            else:
-                print(f"[WARNING] 终止进程失败: {kill_result.stderr}")
-                return False
-        else:
-            print(f"[INFO] 端口 {port} 未被占用")
-            return True
-            
-    except Exception as e:
-        print(f"[WARNING] 杀死端口失败: {e}")
-        return False
-
-def find_available_port(start_port=8080, max_attempts=50):
-    """查找可用端口（增加尝试次数）"""
-    import socket
-    
-    for i in range(max_attempts):
-        port = start_port + i
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                s.bind(('0.0.0.0', port))  # 绑定到所有接口，更准确
-                return port
-        except OSError:
-            continue
-    return None
-
-def is_port_available(port):
-    """检查端口是否可用"""
-    import socket
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('127.0.0.1', port))
-            return True
-    except OSError:
-        return False
-
-# ==================== 主函数 ====================
-def main():
-    """运行Web界面"""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='图像生成与语义一致性检测系统')
-    parser.add_argument('--port', type=int, default=None, help='服务器端口 (默认: 自动选择)')
-    parser.add_argument('--host', type=str, default='0.0.0.0', help='服务器地址 (默认: 0.0.0.0 允许外部访问)')
-    parser.add_argument('--share', action='store_true', help='创建公共链接 (使用Gradio的share功能)')
-    parser.add_argument('--local', action='store_true', help='仅本地访问 (使用127.0.0.1)')
-    parser.add_argument('--auth', type=str, nargs=2, metavar=('USERNAME', 'PASSWORD'), 
-                       help='启用HTTP基本认证 (格式: --auth username password)')
-    parser.add_argument('--auth-message', type=str, default='请输入用户名和密码',
-                       help='认证提示信息')
-    args = parser.parse_args()
-    
-    # 如果指定了--local，则使用127.0.0.1
-    if args.local:
-        server_name = "127.0.0.1"
-        print("⚠️  仅本地访问模式 (127.0.0.1)")
-    else:
-        # 默认使用0.0.0.0允许所有网络接口访问，包括localhost
-        server_name = args.host if args.host != "0.0.0.0" else "0.0.0.0"
-        print(f"🌐 服务器模式 (监听: {server_name})")
-        if args.port:
-            print(f"   本地访问: http://127.0.0.1:{args.port}")
-            print(f"   局域网访问: http://<您的IP>:{args.port}")
-        else:
-            print(f"   本地访问: http://127.0.0.1:<自动分配端口>")
-            print(f"   局域网访问: http://<您的IP>:<自动分配端口>")
-            print(f"   注: 端口将在启动时自动分配")
-    
-    # 处理端口 - 改为自动选择可用端口
-    if args.port:
-        # 如果指定了端口，先检查是否可用
-        if is_port_available(args.port):
-            target_port = args.port
-            print(f"✅ 使用指定端口: {target_port}")
-        else:
-            print(f"⚠️  端口 {args.port} 已被占用，尝试杀死占用进程...")
-            # 尝试杀死占用端口的进程
-            if kill_port(args.port):
-                # 等待一下，让端口释放
-                import time
-                time.sleep(1)
-                # 再次检查端口是否可用
-                if is_port_available(args.port):
-                    target_port = args.port
-                    print(f"✅ 端口 {args.port} 已释放，使用该端口")
-                else:
-                    print(f"⚠️  端口 {args.port} 仍被占用，自动查找可用端口...")
-                    target_port = find_available_port(start_port=args.port, max_attempts=50)
-                    if target_port:
-                        print(f"✅ 找到可用端口: {target_port}")
-                    else:
-                        print(f"❌ 无法找到可用端口（已尝试 {args.port}-{args.port+49}）")
-                        print(f"💡 建议：关闭占用端口 {args.port} 的进程，或使用其他端口")
-                        return
-            else:
-                print(f"⚠️  无法杀死占用进程，自动查找可用端口...")
-                target_port = find_available_port(start_port=args.port, max_attempts=50)
-                if target_port:
-                    print(f"✅ 找到可用端口: {target_port}")
-                else:
-                    print(f"❌ 无法找到可用端口（已尝试 {args.port}-{args.port+49}）")
-                    print(f"💡 建议：关闭占用端口 {args.port} 的进程，或使用其他端口")
-                    return
-    else:
-        # 未指定端口，让Gradio自动选择（不设置server_port参数）
-        target_port = None
-        print(f"✅ 将自动选择可用端口")
-    
-    try:
-        print("=" * 60)
-        print("正在启动Gradio界面...")
-        print("=" * 60)
-        
-        demo = create_interface()
-        
-        print("✅ Gradio界面创建成功！")
-        print("=" * 60)
-        print(f"正在启动服务器...")
-        print(f"  地址: {server_name}")
-        
-        # 准备启动参数
-        launch_kwargs = {
-            'server_name': server_name,
-            'share': args.share,
-            'show_error': True,
-            'inbrowser': True,  # 自动打开浏览器
-            'favicon_path': None,
-        }
-        
-        # 只有在指定了端口时才设置server_port，否则让Gradio自动选择
-        if target_port is not None:
-            launch_kwargs['server_port'] = target_port
-            print(f"  端口: {target_port}")
-        else:
-            print(f"  端口: 自动选择")
-        
-        # 如果启用了认证
-        if args.auth:
-            launch_kwargs['auth'] = tuple(args.auth)
-            launch_kwargs['auth_message'] = args.auth_message
-        
-        demo.launch(**launch_kwargs)
-        
-    except Exception as e:
-        print(f"❌ 启动失败: {e}")
-        import traceback
-        traceback.print_exc()
-
-if __name__ == "__main__":
-    main()
+# ==================== 主函数 ====================  
+def main():  
+    """运行Web界面 - Zeabur 专用版本"""  
+    import os  
+      
+    # ✅ Zeabur 专用：必须从环境变量读取 PORT  
+    PORT = int(os.environ.get("PORT", 8080))  
+      
+    print("=" * 60)  
+    print("🚀 图像生成与语义一致性检测系统")  
+    print("=" * 60)  
+    print(f"✅ 监听端口: {PORT}")  
+    print(f"✅ 监听地址: 0.0.0.0")  
+    print("=" * 60)  
+      
+    try:  
+        print("[INFO] 正在创建 Gradio 界面...")  
+        demo = create_interface()  
+        print("[INFO] ✅ Gradio 界面创建成功！")  
+          
+        print("[INFO] 正在启动服务器...")  
+        print(f"[INFO] 本地访问: http://127.0.0.1:{PORT}")  
+        print(f"[INFO] 外部访问: http://<您的IP>:{PORT}")  
+        print("=" * 60)  
+          
+        # ✅ Zeabur 必须的启动配置  
+        demo.launch(  
+            server_name="0.0.0.0",      # ✅ 监听所有网络接口  
+            server_port=PORT,            # ✅ 使用 Zeabur 的 PORT  
+            share=False,                 # ❌ 不使用 share（Zeabur 已提供域名）  
+            show_error=True,             # ✅ 显示错误信息  
+            inbrowser=False,             # ❌ 不自动打开浏览器（云环境无意义）  
+            favicon_path=None  
+        )  
+          
+    except Exception as e:  
+        print(f"[ERROR] ❌ 启动失败: {e}")  
+        import traceback  
+        traceback.print_exc()  
+        import sys  
+        sys.exit(1)  
+if __name__ == "__main__":  
+    main()  
 
 
