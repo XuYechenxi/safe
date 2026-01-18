@@ -129,8 +129,14 @@ body {
 /* 输入框 */
 .input {
   width: 100%;
-  height: 44px;
-  padding: 10px 14px;
+  /* 方案 A：去掉固定 height，改用 padding 撑开，最稳妥 */
+  height: auto; 
+  padding: 12px 14px; 
+  
+  /* 或者方案 B：保留 44px 高度，但必须确保 line-height 居中 */
+  /* height: 44px; */
+  /* line-height: 20px; */ /* (44px - 12px*2) 左右 */
+
   border-radius: 10px;
   border: 1px solid #e6e6e6;
   font-size: 14px;
@@ -138,6 +144,18 @@ body {
   transition: border-color .18s, box-shadow .18s;
   background: #fff;
   box-sizing: border-box;
+  
+  /* 新增：强制垂直对齐 */
+  display: flex;
+  align-items: center;
+}
+
+/* 针对 Gradio 的深度补丁 */
+.gradio-textbox input, 
+.gradio-textbox textarea {
+    line-height: 1.5 !important; /* 强制行高 */
+    padding-top: 8px !important;  /* 调整顶部间距预防下沉 */
+    padding-bottom: 8px !important;
 }
 .input:focus { border-color: #8f6ff8; box-shadow: 0 6px 18px rgba(143,111,248,0.12); }
 .input::placeholder { color: #999; }
