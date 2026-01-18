@@ -219,6 +219,13 @@ body {
 @media (max-width: 420px) {
   .captcha-image { width: 96px; }
 }
+/* Gradio 左侧栏（替代 Column max_width） */
+.sidebar {
+  width: 230px;
+  max-width: 230px;
+  min-width: 230px;
+  flex-shrink: 0;
+}
 
 
 
