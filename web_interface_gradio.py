@@ -2616,7 +2616,7 @@ def create_interface():
             # 主内容区域 - 左侧导航栏 + 右侧内容
             with gr.Row(elem_classes=["main-content-container"]):
                 # 左侧导航栏 - 添加渐变背景和阴影
-                with gr.Column(scale=1, min_width=230, max_width=230, elem_classes=["sidebar"]):
+                with gr.Column(scale=1, min_width=230, elem_classes=["sidebar"]):
                     # 导航按钮 - 垂直排列，添加data-icon属性
                     dashboard_nav_btn = gr.Button("仪表盘", variant="secondary", size="lg", elem_classes=["nav-button", "active"], elem_id="dashboard-btn")
                     
